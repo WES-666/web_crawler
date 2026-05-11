@@ -1,12 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hello World</title>
+    <title>農機補助查詢</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 2em;
+      }
+      #results {
+        margin-top: 1em;
+      }
+      .result {
+        margin-bottom: 1em;
+      }
+      .result a {
+        font-size: 1.2em;
+      }
+    </style>
   </head>
 
   <body>
-    <h1>Hello World</h1>
+    <h1>農機補助查詢</h1>
+    <form id="search-form">
+      <input type="text" id="query" value="農機補助" />
+      <button type="submit">查詢</button>
+    </form>
+    <div id="results"></div>
+
+    <script>
+      document
+        .getElementById("search-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const query = document.getElementById("query").value;
+          const resultsDiv = document.getElementById("results");
+          resultsDiv.innerHTML = "<p>正在查詢中...</p>";
+
+          const response = await fetch(`/search?query=${query}`);
+          const results = await response.json();
+
+          resultsDiv.innerHTML = "";
+
+          if (results.length === 0) {
+            resultsDiv.innerHTML = "<p>找不到結果</p>";
+            return;
+          }
+
+          for (const result of results) {
+            const resultDiv = document.createElement("div");
+            resultDiv.classList.add("result");
+            const link = document.createElement("a");
+            link.href = result.link;
+            link.textContent = result.title;
+            link.target = "_blank";
+            resultDiv.appendChild(link);
+            resultsDiv.appendChild(resultDiv);
+          }
+        });
+    </script>
   </body>
 </html>
