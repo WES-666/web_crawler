@@ -18,14 +18,18 @@
       .result a {
         font-size: 1.2em;
       }
+      .result p {
+        margin: 0.2em 0;
+        color: #555;
+      }
     </style>
   </head>
 
   <body>
     <h1>農機補助查詢</h1>
     <form id="search-form">
-      <input type="text" id="query" value="農機補助" />
-      <button type="submit">查詢</button>
+      <input type="text" id="query" value="" placeholder="輸入關鍵字搜尋，或留白查看近日焦點"/>
+      <button type-="submit">查詢</button>
     </form>
     <div id="results"></div>
 
@@ -34,11 +38,12 @@
         .getElementById("search-form")
         .addEventListener("submit", async (e) => {
           e.preventDefault();
-          const query = document.getElementById("query").value;
+          const query = document.getElementById("query").value.trim();
           const resultsDiv = document.getElementById("results");
+
           resultsDiv.innerHTML = "<p>正在查詢中...</p>";
 
-          const response = await fetch(`/search?query=${query}`);
+          const response = await fetch(`/search?keyword=${encodeURIComponent(query)}`);
           const results = await response.json();
 
           resultsDiv.innerHTML = "";
@@ -51,11 +56,17 @@
           for (const result of results) {
             const resultDiv = document.createElement("div");
             resultDiv.classList.add("result");
+            
             const link = document.createElement("a");
             link.href = result.link;
             link.textContent = result.title;
             link.target = "_blank";
             resultDiv.appendChild(link);
+
+            const dateP = document.createElement("p");
+            dateP.textContent = `發布日期: ${result.date}`;
+            resultDiv.appendChild(dateP);
+            
             resultsDiv.appendChild(resultDiv);
           }
         });
